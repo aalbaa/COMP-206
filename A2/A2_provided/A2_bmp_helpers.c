@@ -100,15 +100,14 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
   
   *img_data = img_data_ptr;
 
-
-  // Test reading data (to figure out padding)
-  // debug("Reading first few bytes: \n %s\n",*(img_data))
+  // Calculating and storing "padding":
+  *padding = *width%4;
 
 
 
   debug("File size (test) in bytes: %u bytes\n", sizeTest);
 
-  // debug("width: %u\n",*width);
+  // debug("data after offset: %s\n",(img_data_ptr+*data_offset));
 
   
   return 0;  
