@@ -12,8 +12,10 @@
 
 #ifdef DEBUG
   #define debug(x,y) printf(x,y)
+  // #define debug(x) printf(x)
 #else
   #define debug(x,y)
+  // #define debug(x) printf(x)
 #endif
 
 #include <stdio.h>
@@ -28,16 +30,16 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
               unsigned int *data_offset, unsigned char** img_data ){
 
               
-  // YOUR CODE FOR Q1 SHOULD REPLACE EVERYTHING FROM HERE
-  printf( "BMP_OPEN is not yet implemented. Please help complete this code!\n" );
-  *width=0;
-  *height=0;
-  *bits_per_pixel=0;
-  *padding=0;
-  *data_size=0;
-  *data_offset=0;
-  *img_data=NULL;
-  // TO HERE
+  // // YOUR CODE FOR Q1 SHOULD REPLACE EVERYTHING FROM HERE
+  // printf( "BMP_OPEN is not yet implemented. Please help complete this code!\n" );
+  // *width=0;
+  // *height=0;
+  // *bits_per_pixel=0;
+  // *padding=0;
+  // *data_size=0;
+  // *data_offset=0;
+  // *img_data=NULL;
+  // // TO HERE
 
 
   // Opening file:
@@ -74,15 +76,24 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
     return -1;
   }
 
+  
+
+
   // image data pointer (malloc)
-  char *img_data_ptr = (char*) malloc(*data_size);
+  unsigned char *img_data_ptr = (unsigned char*) malloc(*data_size);
   fread(img_data_ptr, 1, *data_size, bmpfile);
+  
+  *img_data = img_data_ptr;
+
+  //NOTE: "*img_data" can be replaced for "img_data_ptr" in the following code. 
+  // I chose img_data_ptr for the neateness of the code
 
 
   //testing (since we already know filesize)
   unsigned int* sizeTestPtr = (unsigned int*) (img_data_ptr+2);
   unsigned int sizeTest = *sizeTestPtr;
 
+  
 
   unsigned int* width_ptr =  (unsigned int*)(img_data_ptr+18);
   *width = *width_ptr;
@@ -98,7 +109,7 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
   unsigned int *data_offset_ptr = (unsigned int*)(img_data_ptr+10);
   *data_offset = *data_offset_ptr;
   
-  *img_data = img_data_ptr;
+  
 
   // Calculating and storing "padding":
   *padding = *width%4;
@@ -107,11 +118,16 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
 
   debug("File size (test) in bytes: %u bytes\n", sizeTest);
 
-  // debug("data after offset: %s\n",(img_data_ptr+*data_offset));
-
+  // closing file:
+  fclose(bmpfile);
   
   return 0;  
 }
+
+
+/********************************************************************/
+/********************************************************************/
+/********************************************************************/
 
 // We've implemented bmp_close for you. No need to modify this function
 void bmp_close( unsigned char **img_data ){
@@ -121,6 +137,13 @@ void bmp_close( unsigned char **img_data ){
     *img_data = NULL;
   }
 }
+
+
+/********************************************************************/
+/********************************************************************/
+/********************************************************************/
+//           Q2
+
 
 int bmp_mask( char* input_bmp_filename, char* output_bmp_filename, 
               unsigned int x_min, unsigned int y_min, unsigned int x_max, unsigned int y_max,
@@ -138,14 +161,58 @@ int bmp_mask( char* input_bmp_filename, char* output_bmp_filename,
   
   if( open_return_code ){ printf( "bmp_open failed. Returning from bmp_mask without attempting changes.\n" ); return -1; }
  
-  // YOUR CODE FOR Q2 SHOULD REPLACE EVERYTHING FROM HERE
-  printf( "BMP_MASK is not yet implemented. Please help complete this code!\n" );
-  // TO HERE!
+  // // YOUR CODE FOR Q2 SHOULD REPLACE EVERYTHING FROM HERE
+  // printf( "BMP_MASK is not yet implemented. Please help complete this code!\n" );
+  // // TO HERE!
+
+  
+
+
+  unsigned char* new_img_data = (unsigned char*)malloc(data_size);
+  memcpy(new_img_data, img_data, data_size);
+  
+  
+  debug("Reading: %u \n",*(unsigned int*)(new_img_data+2));
+  
+
+  unsigned int num_colors = bits_per_pixel/8;
+  unsigned char *pixel_data = new_img_data + data_offset;
+
+  
+  // Setting the values
+  for(int row = y_min; row <= y_max; row++){
+    for(int col = x_min; col <= x_max; col++){     
+      new_img_data[ row*(img_width*num_colors+padding) + col*num_colors + 2 + data_offset] = red;      
+      new_img_data[ row*(img_width*num_colors+padding) + col*num_colors + 1 + data_offset] = green;
+      new_img_data[ row*(img_width*num_colors+padding) + col*num_colors + 0 + data_offset] = blue;      
+    }    
+  }
+  
+  debug("coutner k = %i\n",k);
+    
+  // opening output file (or creating it)
+  FILE *bmpfile_new = fopen(output_bmp_filename,"wb");
+  if(bmpfile_new == NULL){
+    printf("Error reading the file\n");
+    return -1;
+  }
+  // writing to output file
+  fwrite(new_img_data, 1, data_size, bmpfile_new);
+
+  // closing output file (we're done using it)
+  fclose(bmpfile_new);
   
   bmp_close( &img_data );
   
   return 0;
 }         
+
+
+
+/********************************************************************/
+/********************************************************************/
+/********************************************************************/
+
 
 int bmp_collage( char* bmp_input1, char* bmp_input2, char* bmp_result, int x_offset, int y_offset ){
 
