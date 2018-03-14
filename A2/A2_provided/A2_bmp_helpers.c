@@ -30,22 +30,12 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
               unsigned int *data_offset, unsigned char** img_data ){
 
               
-  // // YOUR CODE FOR Q1 SHOULD REPLACE EVERYTHING FROM HERE
-  // printf( "BMP_OPEN is not yet implemented. Please help complete this code!\n" );
-  // *width=0;
-  // *height=0;
-  // *bits_per_pixel=0;
-  // *padding=0;
-  // *data_size=0;
-  // *data_offset=0;
-  // *img_data=NULL;
-  // // TO HERE
-
+/***************** CODE FROM HERE  ************/
 
   // Opening file:
   FILE *bmpfile = fopen(bmp_filename,"rb");
   if(bmpfile == NULL){
-    printf("Error reading the file\n");
+    printf("(48) Error reading the file\n");
     return -1;
   }
 
@@ -72,7 +62,7 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
   fclose(bmpfile);
   bmpfile = fopen(bmp_filename,"rb");
   if(bmpfile == NULL){
-    printf("Error reading the file\n");
+    printf("(75) Error reading the file  \n");
     return -1;
   }
 
@@ -80,43 +70,25 @@ int bmp_open( char* bmp_filename,        unsigned int *width,
 
 
   // image data pointer (malloc)
-  unsigned char *img_data_ptr = (unsigned char*) malloc(*data_size);
-  fread(img_data_ptr, 1, *data_size, bmpfile);
+    *img_data = (unsigned char*) malloc(*data_size);
   
-  *img_data = img_data_ptr;
-
-  //NOTE: "*img_data" can be replaced for "img_data_ptr" in the following code. 
-  // I chose img_data_ptr for the neateness of the code
-
-
-  //testing (since we already know filesize)
-  unsigned int* sizeTestPtr = (unsigned int*) (img_data_ptr+2);
-  unsigned int sizeTest = *sizeTestPtr;
-
+  fread(*img_data, 1, *data_size, bmpfile);
+  
+    
+  *width =  *(unsigned int*)(*img_data+18);  
+  
+  *height = *(unsigned int*)(*img_data+22);
+    
+  *bits_per_pixel = *(unsigned int*)(*img_data+28);
   
 
-  unsigned int* width_ptr =  (unsigned int*)(img_data_ptr+18);
-  *width = *width_ptr;
 
-  unsigned int *height_ptr = (unsigned int*)(img_data_ptr+22);
-  *height = *height_ptr;
-  
-  unsigned int *bits_per_pixel_ptr = (unsigned int*)(img_data_ptr+28);
-  *bits_per_pixel = *bits_per_pixel_ptr;
-
-  // unsigned int *padding_ptr = (unsigned int*)(img_data_ptr+22);,
   // unsigned int *data_size, 
-  unsigned int *data_offset_ptr = (unsigned int*)(img_data_ptr+10);
-  *data_offset = *data_offset_ptr;
+  *data_offset = *(unsigned int*)(*img_data+10);
   
-  
-
   // Calculating and storing "padding":
   *padding = *width%4;
-
-
-
-  debug("File size (test) in bytes: %u bytes\n", sizeTest);
+  
 
   // closing file:
   fclose(bmpfile);
@@ -188,12 +160,12 @@ int bmp_mask( char* input_bmp_filename, char* output_bmp_filename,
     }    
   }
   
-  debug("coutner k = %i\n",k);
+
     
   // opening output file (or creating it)
   FILE *bmpfile_new = fopen(output_bmp_filename,"wb");
   if(bmpfile_new == NULL){
-    printf("Error reading the file\n");
+    printf("(196) Error reading the file\n");
     return -1;
   }
   // writing to output file
@@ -212,9 +184,12 @@ int bmp_mask( char* input_bmp_filename, char* output_bmp_filename,
 /********************************************************************/
 /********************************************************************/
 /********************************************************************/
-
+/*                          Q3                */
 
 int bmp_collage( char* bmp_input1, char* bmp_input2, char* bmp_result, int x_offset, int y_offset ){
+  // int temp = x_offset;
+  // x_offset = y_offset;
+  // y_offset = temp;
 
   unsigned int img_width1;
   unsigned int img_height1;
@@ -240,12 +215,179 @@ int bmp_collage( char* bmp_input1, char* bmp_input2, char* bmp_result, int x_off
   
   if( open_return_code ){ printf( "bmp_open failed for %s. Returning from bmp_collage without attempting changes.\n", bmp_input2 ); return -1; }
   
-  // YOUR CODE FOR Q3 SHOULD REPLACE EVERYTHING FROM HERE
-  printf( "BMP_COLLAGE is not yet implemented. Please help complete this code!\n" );
-  // TO HERE!
-      
-  bmp_close( &img_data1 );
-  bmp_close( &img_data2 );
+  // BEGINNGING OF SOLUTION
+  unsigned int img_width_result;
+  unsigned int img_height_result;
+  unsigned int bits_per_pixel_result;
+  unsigned int data_size_result;
+  unsigned int padding_result;
+  unsigned int data_offset_result;
+  unsigned char* img_data_result    = NULL;
   
+  
+  int additional_width;
+  int additional_height;
+
+
+  int x_max, x_min, y_max, y_min;   //to determine height and width
+
+if(x_offset >=0){
+  if(img_width1 >= img_width2+x_offset){
+    x_max = img_width1;
+  }else{
+    x_max = img_width2 + x_offset;
+  }
+}else{
+  // if(img_width1 >= img_width2-x_offset){
+    x_max = img_width1-x_offset;
+  // }else{
+  //   x_max = img_width2 - x_offset;
+  // }
+}
+  
+
+  if( x_offset < 0){
+    x_min = x_offset;
+  }else{
+    x_min = 0;
+  }
+
+if(y_offset >=0 ){
+  if(img_height1 >= img_height2 + y_offset){
+    y_max = img_height1;
+  }else{
+    y_max = img_height2 + y_offset;
+  }
+}else{
+  y_max = img_height1-y_offset;
+}
+  
+
+  if( y_offset < 0){
+    y_min = y_offset;
+  }else{
+    y_min = 0;
+  }
+
+  img_width_result = x_max-x_min;
+  img_height_result = y_max-y_min;
+
+
+
+  // img_width_result = img_width1 + additional_width;
+  // img_height_result = img_height1 + additional_height;
+
+  padding_result = img_width_result%4;
+
+  
+  // choosing the header file to be identical to that of input 1;
+  data_offset_result = data_offset1;
+  bits_per_pixel_result = bits_per_pixel1;
+
+  // data_size_result = ((img_width_result*img_height_result)-(img_width2*img_height2))*bits_per_pixel_result/8
+  //                     +(img_width2*img_height2*bits_per_pixel2/8);
+
+  data_size_result = ((img_width_result*img_height_result)*bits_per_pixel2/8);
+  // adding offset:
+  data_size_result += data_offset_result + padding_result*img_height_result;
+
+  debug("data_size_result:  %u\n",data_size_result);
+
+  debug("new image data_size :  %u\n",data_size_result);
+
+  // new img
+  img_data_result = (unsigned char*)malloc(data_size_result);
+  memcpy(img_data_result, img_data1, data_offset1);
+  
+  // editing data:  
+  unsigned int* data_int_ptr_result = (unsigned int*) (img_data2);  
+  *(data_int_ptr_result+ 2) = data_size_result;
+  *(data_int_ptr_result+10) = data_offset_result;
+  *(data_int_ptr_result+18) = img_width_result;
+  *(data_int_ptr_result+22) = img_height_result;
+  *(data_int_ptr_result+28) = bits_per_pixel_result;
+
+  int x = 2;
+  *(img_data_result+x) = *(data_int_ptr_result+x);
+  x = 10;
+  *(img_data_result+x) = *(data_int_ptr_result+x);
+  x = 18;
+  *(img_data_result+x) = *(data_int_ptr_result+x);
+  x = 22;
+  *(img_data_result+x) = *(data_int_ptr_result+x);
+  x = 28;
+  *(img_data_result+x) = *(data_int_ptr_result+x);
+
+
+  // debugging
+  unsigned int sizeTest = *(data_int_ptr_result+2);
+  debug("new image size (from malloc): %u\n",sizeTest);
+  x = 10;
+  sizeTest = *(data_int_ptr_result+x);
+  debug("new image data_offset: %u\n",sizeTest);
+  x = 18;
+  sizeTest = *(data_int_ptr_result+x);
+  debug("new image width: %u\n",sizeTest);
+  x = 22;
+  sizeTest = *(data_int_ptr_result+x);
+  debug("new image height: %u\n",img_height_result);
+
+  
+
+  unsigned int num_colors = bits_per_pixel_result/8;
+  
+
+  // negative x_offset (0 if x_offset >0)
+  int x_offset_ve = 0;
+  int y_offset_ve = 0;
+
+  
+
+  
+  
+
+  for(int row = 0; row <= img_height_result; row++){
+    for(int col = 0; col <= img_width_result; col++){
+      // writing top image
+      if(( (row-y_offset+y_min) >= 0 && (row-y_offset+y_min) <= img_height2) && ((col-x_offset+x_min) >= 0 && (col-x_offset+x_min) <= img_width2)){           
+
+        memcpy(img_data_result + row*(img_width_result*num_colors+padding_result) + col*num_colors + data_offset_result,
+              img_data2+ (row-y_offset+y_min)*(img_width2*num_colors+padding2) + (col-x_offset+x_min)*num_colors + data_offset2,
+              num_colors);
+      }else{
+        
+        // bottom image
+        if(row <= img_height1-y_min && row >= -y_min && col <= img_width1-x_min && col >= -x_min){              
+          memcpy(img_data_result + row*(img_width_result*num_colors+padding_result) + col*num_colors + data_offset_result,
+              img_data1 + (row+y_min)*(img_width1*num_colors+padding1) + (col+x_min)*num_colors + data_offset1,
+              num_colors);    
+
+          
+        }else{
+          // black or white
+          img_data_result[ row*(img_width_result*num_colors+padding_result) + col*num_colors + 2 + data_offset_result] = 0;      
+          img_data_result[ row*(img_width_result*num_colors+padding_result) + col*num_colors + 1 + data_offset_result] = 0;
+          img_data_result[ row*(img_width_result*num_colors+padding_result) + col*num_colors + 0 + data_offset_result] = 0;     
+        }
+      }
+    }    
+  }  
+
+  
+ 
+
+  FILE *bmp_result_ptr = fopen(bmp_result,"wb");
+  if(bmp_result == NULL){
+    printf("Error opening the file\n");
+    return -1;
+  }
+  fwrite(img_data_result, 1, data_size_result, bmp_result_ptr);
+  
+  debug("pointer: img_data1:  %p\n",img_data1);
+  fclose(bmp_result_ptr);
+  // bmp_close( &img_data1 );
+  bmp_close( &img_data2 );
+
+   
   return 0;
-}                  
+}               
