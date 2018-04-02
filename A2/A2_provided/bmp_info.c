@@ -37,8 +37,10 @@ int main( int argc, char* argv[] ){
   printf( "  height        = %d\n", image_height );
   printf( "  bpp           = %d\n", bits_per_pixel );
   printf( "  padding       = %d\n", row_padding );
-  printf( "  data_offset   = %d\n", data_offset );
-    
+  printf( "  data_offset   = %d\n", data_offset );  
+  
+  debug("data size direct read (img_data_ptr+2) = %u\n",img_data[2]);
+
   unsigned int middle_row = image_height/2;
   unsigned int middle_col = image_height/2;
   unsigned int num_colors = bits_per_pixel/8;

@@ -8,6 +8,14 @@
 #include <stdlib.h>
 #include "A2_bmp_helpers.h"
 
+
+#ifdef DEBUG
+  #define debug(x,y) printf(x,y)
+#else
+  #define debug(x,y)
+#endif
+
+
 int main( int argc, char* argv[] ){
 
   if( argc < 10 ){
