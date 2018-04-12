@@ -45,7 +45,18 @@ void read_by_letter( char *filename, char first_letter ){
 
 // YOU COMPLETE THIS ENTIRE FUNCTION FOR Q1.
 void sort_words( ){
-    
+    char temp[MAX_LINE_LENGTH]; // this is a temporary variable for 'swap'
+
+    for (int i = 0; i < MAX_NUMBER_LINES; i++){
+        for(int j=i; j < MAX_NUMBER_LINES; j++){
+            if(strcmp(text_array[j],text_array[i]) < 0){
+                // swap
+                strcpy(temp, text_array[i]);
+                strcpy(text_array[i], text_array[j]);
+                strcpy(text_array[j], temp);
+            }
+        }
+    }
 }
 
 // YOU COMPLETE THIS ENTIRE FUNCTION FOR Q2.

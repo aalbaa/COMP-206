@@ -15,6 +15,7 @@ int main( int argc, char *argv[] ){
 
 	read_all( argv[1] );
 	sort_words( );
+	
 
 	int curr_line = 0;
 	while( text_array[curr_line][0] != '\0' ){
@@ -22,6 +23,7 @@ int main( int argc, char *argv[] ){
 		write(1,buf,strlen(buf));
 		curr_line++;
 	}
+
 
 	sprintf( buf, "Sorting complete!\n" );
 	write( 1, buf, strlen(buf) );
