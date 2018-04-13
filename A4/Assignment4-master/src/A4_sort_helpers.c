@@ -1,6 +1,13 @@
 #include "A4_sort_helpers.h"
 #include <stdlib.h>
+
+
+// Global vars
 sem_t* sem[27]; // 27 semaphores
+FILE *fout;
+char* foutName ="Sorted.txt";
+
+
 // Function: read_all() 
 // Provided to read an entire file, line by line.
 // No need to change this one.
@@ -85,6 +92,10 @@ int initialize( ){
     }
 
 
+    // For Q3: Open output file (sorted text)
+    fout = fopen(foutName, "w");
+    
+
     return 0;
 }
 
@@ -93,10 +104,22 @@ int process_by_letter( char* input_filename, char first_letter ){
     // For Q2, keep the following 2 lines in your solution (maybe not at the start).
     // Add lines above or below to ensure the "This process will sort..." lines
     // are printed in the right order (alphabetical).
+
+    // Q2
     sem_wait(sem[first_letter-'a']);
     
-    sprintf(buf, "This process will sort the letter %c.\n",  first_letter );
-    write(1,buf,strlen(buf));
+    // For debugging purposes
+    // sprintf(buf, "This process will sort the letter %c.\n",  first_letter );
+    // write(1,buf,strlen(buf));
+
+    // Q3 part
+    read_by_letter(input_filename, first_letter);
+
+    sort_words();
+
+    for (int i = 0; text_array[i][0] != '\0'; i++){
+        fputs(text_array[i], fout);
+    }
 
     sem_post(sem[first_letter-'a'+1]);
 
@@ -113,8 +136,23 @@ int finalize( ){
     // Add lines above or below to ensure the "Sorting complete!" line
     // is printed at the very end, after all letter lines.
     sem_wait(sem[26]);
+    
+    fclose(fout);
+
+    read_all(foutName);
+
+    for(int i=0; text_array[i][0] != '\0'; i++){
+        // sprintf(buf, text_array[i]);
+        printf("%s",text_array[i]); fflush(stdout);
+        // sprintf( buf, "%s", text_array[i] );
+        // write( 1, buf, strlen(buf) );
+    }
+
     sprintf( buf, "Sorting complete!\n" );
     write( 1, buf, strlen(buf) );
+
+    fclose(fout);
+
     // sem_post(sem[26]);
 
     // For Q3, come up with a way to accumulate the sorted results from each
