@@ -76,7 +76,7 @@ int initialize( ){
     sem_unlink(alph[0]);
     sem[0] = sem_open(alph[0],O_CREAT, 0666,1);
         
-    for (int i = 0; i < 26; i++){
+    for (int i = 1; i < 27; i++){
         alph[i][0] = 'a'+i;
         alph[i][1] = '\0';
 
@@ -112,11 +112,10 @@ int finalize( ){
     // For Q2, keep the following 2 lines in your solution (maybe not at the start).
     // Add lines above or below to ensure the "Sorting complete!" line
     // is printed at the very end, after all letter lines.
-    
-    sem_post(sem[0]);
+    sem_wait(sem[26]);
     sprintf( buf, "Sorting complete!\n" );
     write( 1, buf, strlen(buf) );
-    sem_post(sem[26]);
+    // sem_post(sem[26]);
 
     // For Q3, come up with a way to accumulate the sorted results from each
     // letter process and print the overal sorted values to standard out.
