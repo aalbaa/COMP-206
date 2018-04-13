@@ -24,6 +24,9 @@ int main( int argc, char *argv[] ){
 		curr_line++;
 	}
 
+	// for (int i=0; text_array[i][0]!= '\0'; i++){
+	// 	printf("%s",text_array[i]);
+	// }
 
 	sprintf( buf, "Sorting complete!\n" );
 	write( 1, buf, strlen(buf) );

@@ -1,5 +1,6 @@
 #include "A4_sort_helpers.h"
-
+#include <stdlib.h>
+sem_t* sem[27]; // 27 semaphores
 // Function: read_all() 
 // Provided to read an entire file, line by line.
 // No need to change this one.
@@ -47,11 +48,12 @@ void read_by_letter( char *filename, char first_letter ){
 void sort_words( ){
     char temp[MAX_LINE_LENGTH]; // this is a temporary variable for 'swap'
 
-    for (int i = 0; i < MAX_NUMBER_LINES; i++){
-        for(int j=i; j < MAX_NUMBER_LINES; j++){
+    for (int i = 0; text_array[i][0] != '\0'; i++ ){
+        for(int j=i; text_array[j][0] != '\0';j++){
             if(strcmp(text_array[j],text_array[i]) < 0){
                 // swap
                 strcpy(temp, text_array[i]);
+                // char* temp =(char*)malloc(MAX_LINE_LENGTH*sizeof(char));
                 strcpy(text_array[i], text_array[j]);
                 strcpy(text_array[j], temp);
             }
@@ -62,9 +64,32 @@ void sort_words( ){
 // YOU COMPLETE THIS ENTIRE FUNCTION FOR Q2.
 int initialize( ){
     // Remove the current place-holder code, and write your own.
-    sprintf(buf, "Initializing.\n"  );
-    write(1, buf, strlen(buf));
+    // sprintf(buf, "Initializing.\n"  );
+    // write(1, buf, strlen(buf));
+
+    // array of alphabet (as strings)
+    char alph[27][2];
     
+    for (int i = 0; i < 26; i++){
+        alph[i][0] = 'a'+i;
+        alph[i][1] = '\0';
+
+        sem_unlink(alph[i]);
+        sem[i] = sem_open(alph[i],O_CREAT, 0666,1);
+    }
+    
+    
+
+    // // for (int i = 1; i < 27; i++){
+    // //     alph[i][0] = 'a'+i;
+    // //     alph[i][0] = '\0';
+
+    // //     // sem_unlink(sem[i]);
+    // //     sem_unlink(alph[i]);
+    // //     sem[i] = sem_open(alph[i],O_CREAT, 0666,0);
+    // // }
+    // sem[1] = sem_open(alph[1],O_CREAT, 0666,1);
+    // sem_post()
     return 0;
 }
 
@@ -73,7 +98,7 @@ int process_by_letter( char* input_filename, char first_letter ){
     // For Q2, keep the following 2 lines in your solution (maybe not at the start).
     // Add lines above or below to ensure the "This process will sort..." lines
     // are printed in the right order (alphabetical).
-    sprintf( buf, "This process will sort the letter %c.\n",  first_letter );
+    sprintf(buf, "This process will sort the letter %c.\n",  first_letter );
     write(1,buf,strlen(buf));
 
     // For Q3, uncomment the following 2 lines and integrate them with your overall solution.

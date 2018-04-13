@@ -1,5 +1,5 @@
 #include "A4_sort_helpers.h"
-
+ 
 int main( int argc, char *argv[] ){
 
 	if( argc != 2 ){
@@ -17,7 +17,7 @@ int main( int argc, char *argv[] ){
 		write(1, buf, strlen(buf));
 		return ret;
 	}
-
+	
     // The following code spawns the 32 processes (the original parent plus 31 more).
     // Each process is assigned an ID. The first parent will have 0.
 	int f;
@@ -46,7 +46,7 @@ int main( int argc, char *argv[] ){
 			return ret;
 		}
 	}
-
+	// printf("id II: %i\n",id);
     // This code calls your finalize function once. Note this is by the original parent.
 	if( id == 0 ){
 		ret = finalize( );
