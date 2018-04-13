@@ -70,26 +70,21 @@ int initialize( ){
     // array of alphabet (as strings)
     char alph[27][2];
     
+    alph[0][0] = 'a';
+    alph[0][1] = '\0';
+
+    sem_unlink(alph[0]);
+    sem[0] = sem_open(alph[0],O_CREAT, 0666,1);
+        
     for (int i = 0; i < 26; i++){
         alph[i][0] = 'a'+i;
         alph[i][1] = '\0';
 
         sem_unlink(alph[i]);
-        sem[i] = sem_open(alph[i],O_CREAT, 0666,1);
+        sem[i] = sem_open(alph[i],O_CREAT, 0666,0);
     }
-    
-    
 
-    // // for (int i = 1; i < 27; i++){
-    // //     alph[i][0] = 'a'+i;
-    // //     alph[i][0] = '\0';
 
-    // //     // sem_unlink(sem[i]);
-    // //     sem_unlink(alph[i]);
-    // //     sem[i] = sem_open(alph[i],O_CREAT, 0666,0);
-    // // }
-    // sem[1] = sem_open(alph[1],O_CREAT, 0666,1);
-    // sem_post()
     return 0;
 }
 
@@ -98,8 +93,12 @@ int process_by_letter( char* input_filename, char first_letter ){
     // For Q2, keep the following 2 lines in your solution (maybe not at the start).
     // Add lines above or below to ensure the "This process will sort..." lines
     // are printed in the right order (alphabetical).
+    sem_wait(sem[first_letter-'a']);
+    
     sprintf(buf, "This process will sort the letter %c.\n",  first_letter );
     write(1,buf,strlen(buf));
+
+    sem_post(sem[first_letter-'a'+1]);
 
     // For Q3, uncomment the following 2 lines and integrate them with your overall solution.
     // read_by_letter( input_filename, first_letter );
@@ -113,8 +112,11 @@ int finalize( ){
     // For Q2, keep the following 2 lines in your solution (maybe not at the start).
     // Add lines above or below to ensure the "Sorting complete!" line
     // is printed at the very end, after all letter lines.
+    
+    sem_post(sem[0]);
     sprintf( buf, "Sorting complete!\n" );
     write( 1, buf, strlen(buf) );
+    sem_post(sem[26]);
 
     // For Q3, come up with a way to accumulate the sorted results from each
     // letter process and print the overal sorted values to standard out.
